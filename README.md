@@ -48,7 +48,7 @@ All functions have appropriate JSDocs.
 * `ScrollHelper.js`: scroll helpers
   * You can use `getScrollLeft`/`setScrollLeft` to normalize the behavior of `scrollLeft` across the quirks of different browsers.
   * You can use `getScrollHorz`/`setScrollHorz` to record and restore `scrollLeft` positions on RTL elements, or to switch between ltr/rtl modes without loosing scroll position.
-  * `calculateScrollLeftForValue(el: Element, left: number, rtl?: boolean|undefined): number`  
+  * `calculateNativeScrollLeftForLeft(el: Element, left: number, rtl?: boolean|undefined): number`  
     Calculates a native `scrollLeft` value for the specific element in the current browser.  
     The input value is a standard `scrollLeft` value (taken with `getScrollLeft`).  
     You will use this function instead of `setScrollLeft` if you want to animate to this value, or other kinds of manipulation.
@@ -60,8 +60,8 @@ All functions have appropriate JSDocs.
   * `setScrollLeft(el: Element, value: number, rtl?: boolean|undefined)`  
     Sets the `scrollLeft` on an element.  
     `rtl` is optional, you can pass it if you already have the 'direction' of the element and want to avoid that extra calculation.  
-    This function uses `calculateScrollLeftForValue(...)` to calculate the native `scrollLeft`.
-  * `calculateScrollHorzForValue(el: Element, left: number, rtl?: boolean|undefined): number`  
+    This function uses `calculateNativeScrollLeftForLeft(...)` to calculate the native `scrollLeft`.
+  * `calculateNativeScrollLeftForHorz(el: Element, left: number, rtl?: boolean|undefined): number`  
     Calculates a native `scrollLeft` value for an element, from an rtl-aware `scrollLeft` (i.e from `getScrollHorz()`).
     You will use this function instead of `setScrollHorz` if you want to animate to this value, or other kinds of manipulation.
     `rtl` is optional, you can pass it if you already have the 'direction' of the element and want to avoid that extra calculation.
@@ -72,7 +72,7 @@ All functions have appropriate JSDocs.
   * `setScrollHorz(el: Element, value: number, rtl?: boolean|undefined)`  
     Sets the `scrollLeft` on an element, with an rtl-aware value.  
     `rtl` is optional, you can pass it if you already have the 'direction' of the element and want to avoid that extra calculation.  
-    This function uses `calculateScrollHorzForValue(...)` to calculate the native `scrollLeft`.
+    This function uses `calculateNativeScrollLeftForHorz(...)` to calculate the native `scrollLeft`.
 
 ---
 
