@@ -18,7 +18,6 @@
     "build": "npm run lint && node ./scripts/build.js",
     "lint": "eslint -f codeframe ./",
     "lint-fix": "eslint -f codeframe --fix ./",
-    "postinstall": "husky install",
     "prepublishOnly": "npm run build",
     "prepare": "husky"
   },
