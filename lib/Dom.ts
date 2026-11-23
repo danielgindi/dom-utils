@@ -1,4 +1,4 @@
-import { setCssProps } from './Css';
+import { setCssProps } from './Css.js';
 
 /**
  * @param {string} tag

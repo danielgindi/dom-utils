@@ -16,6 +16,15 @@ sink.add(element, 'click', () => {});
 
 The helper groups preserve the import style from before 2.0.0. For the event sink class, replace `new DomEventsSink.default()` with `new DomEventsSink()` when upgrading.
 
+The published package also preserves the original `lib/*.js` paths, with TypeScript declarations alongside them:
+
+```ts
+import { createElement } from '@danielgindi/dom-utils/lib/Dom.js';
+import DomEventsSink from '@danielgindi/dom-utils/lib/DomEventsSink.js';
+```
+
+The build generates these JavaScript files from the TypeScript source. Run `npm run build` before using file imports from a local checkout. Bundlers can also resolve the existing extensionless paths, such as `@danielgindi/dom-utils/lib/Dom`.
+
 * `lib/Css.ts`: A set of css helpers
   * `getCssProps(el: Element, props: string[]): Object<string, string>`
   * `setCssProps(el: ElementCSSInlineStyle, props: Object<string, string>)`
@@ -91,6 +100,8 @@ The helper groups preserve the import style from before 2.0.0. For the event sin
 ## Tests
 
 Run `npm test` after `npm install`. The suite covers DOM manipulation, CSS measurements, event listeners, touch gestures, and LTR/RTL scrolling with jsdom.
+
+Run `npm run test:package` to build and test the packed npm package, including the legacy file imports and their TypeScript declarations.
 
 ---
 

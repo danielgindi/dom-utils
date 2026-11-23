@@ -1,9 +1,9 @@
-import * as Css from './Css';
-import * as Dom from './Dom';
-import * as DomCompat from './DomCompat';
-import DomEventsSink from './DomEventsSink';
-import * as Touches from './Touches';
-import * as ScrollHelper from './ScrollHelper';
+import * as Css from './Css.js';
+import * as Dom from './Dom.js';
+import * as DomCompat from './DomCompat.js';
+import DomEventsSink from './DomEventsSink.js';
+import * as Touches from './Touches.js';
+import * as ScrollHelper from './ScrollHelper.js';
 
 export {
     Css,

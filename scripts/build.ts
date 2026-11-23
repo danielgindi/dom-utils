@@ -76,6 +76,9 @@ type BuildTask = {
 
     await FsExtra.ensureDir('dist/types');
     for (const file of await FsExtra.readdir('.tsbuild')) {
+        if (file.endsWith('.js') || file.endsWith('.js.map') || file.endsWith('.d.ts')) {
+            await FsExtra.copyFile(`.tsbuild/${file}`, `lib/${file}`);
+        }
         if (file.endsWith('.d.ts')) {
             await FsExtra.copyFile(`.tsbuild/${file}`, `dist/types/${file}`);
         }
