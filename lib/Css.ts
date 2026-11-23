@@ -3,35 +3,35 @@
  * @param {string[]} props
  * @returns {Object<string, string>}
  */
-const getCssProps = function (el, props) {
-    const style = getComputedStyle(el);
-    let res = {};
+const getCssProps = function (el: Element, props: string[]): Record<string, string> {
+    const style = getComputedStyle(el) as CSSStyleDeclaration & Record<string, string>;
+    let res: Record<string, string> = {};
     for (let prop of props) {
-        let val = style[prop];
+        let val: string | number = style[prop];
 
         if ((prop === 'width' || prop === 'height') && val === 'auto' && el instanceof HTMLElement) {
-            val = el['offset' + prop.substr(0, 1).toUpperCase() + prop.substr(1)];
+            val = el[prop === 'width' ? 'offsetWidth' : 'offsetHeight'];
 
             if (style.boxSizing !== 'border-box') {
                 if (prop === 'width') {
-                    val -= parseFloat(style.paddingLeft || 0);
-                    val -= parseFloat(style.paddingRight || 0);
-                    val -= parseFloat(style.borderLeftWidth || 0);
-                    val -= parseFloat(style.borderRightWidth || 0);
+                    val -= parseFloat(style.paddingLeft || '0');
+                    val -= parseFloat(style.paddingRight || '0');
+                    val -= parseFloat(style.borderLeftWidth || '0');
+                    val -= parseFloat(style.borderRightWidth || '0');
                 } else {
-                    val -= parseFloat(style.paddingTop || 0);
-                    val -= parseFloat(style.paddingBottom || 0);
-                    val -= parseFloat(style.borderTopWidth || 0);
-                    val -= parseFloat(style.borderBottomWidth || 0);
+                    val -= parseFloat(style.paddingTop || '0');
+                    val -= parseFloat(style.paddingBottom || '0');
+                    val -= parseFloat(style.borderTopWidth || '0');
+                    val -= parseFloat(style.borderBottomWidth || '0');
                 }
                 if (val < 0)
                     val = 0;
             }
 
-            val += 'px';
+            val = val + 'px';
         }
 
-        res[prop] = val;
+        res[prop] = val as string;
     }
     return res;
 };
@@ -40,13 +40,15 @@ const getCssProps = function (el, props) {
  * @param {ElementCSSInlineStyle} el
  * @param {Object<string, string>} props
  */
-const setCssProps = function (el, props) {
+const setCssProps = function (el: ElementCSSInlineStyle, props: Record<string, unknown>): void {
+    const style = el.style as CSSStyleDeclaration & Record<string, string>;
     for (let [key, value] of Object.entries(props))
-        el.style[key] = (value === undefined || value === null) ? '' : String(value);
+        style[key] = (value === undefined || value === null) ? '' : String(value);
 };
 
-const generateGetElementSizeFn = function (pseudo, dim, dimCased, startDim, endDim) {
-    return (...args) => {
+const generateGetElementSizeFn = function (pseudo: boolean, dim: 'width' | 'height', dimCased: 'Width' | 'Height', startDim: string, endDim: string) {
+    // The exported wrappers below provide precise signatures for these dynamic arguments.
+    return (...args: any[]) => {
         let /**Element|ElementCSSInlineStyle*/el = args[0],
             /**string*/pseudoSelector,
             /**boolean*/paddings,
@@ -81,7 +83,7 @@ const generateGetElementSizeFn = function (pseudo, dim, dimCased, startDim, endD
         }
         else {
             let value;
-            let style;
+            let style: (CSSStyleDeclaration & Record<string, string>) | undefined;
             let includesPadding = false, includesBorders = false;
 
             if (!pseudo && ('getBoundingClientRect' in el)) {
@@ -91,7 +93,7 @@ const generateGetElementSizeFn = function (pseudo, dim, dimCased, startDim, endD
             }
 
             if (value === undefined || margins || includesPadding !== paddings || includesBorders !== borders) {
-                style = pseudo ? getComputedStyle(el, pseudoSelector) : getComputedStyle(el);
+                style = (pseudo ? getComputedStyle(el, pseudoSelector) : getComputedStyle(el)) as CSSStyleDeclaration & Record<string, string>;
             }
 
             if (value === undefined) {
@@ -110,15 +112,15 @@ const generateGetElementSizeFn = function (pseudo, dim, dimCased, startDim, endD
             }
 
             if (paddings !== includesPadding) {
-                let totalPadding = parseFloat(style[`padding-${startDim}`] || 0) +
-                    parseFloat(style[`padding-${endDim}`] || 0);
+                let totalPadding = parseFloat(style[`padding-${startDim}`] || '0') +
+                    parseFloat(style[`padding-${endDim}`] || '0');
                 if (paddings) value += totalPadding;
                 else value -= totalPadding;
             }
 
             if (borders !== includesBorders) {
-                let totalBorders = parseFloat(style[`border-${startDim}-width`] || 0) +
-                    parseFloat(style[`border-${endDim}-width`] || 0);
+                let totalBorders = parseFloat(style[`border-${startDim}-width`] || '0') +
+                    parseFloat(style[`border-${endDim}-width`] || '0');
                 if (borders) value += totalBorders;
                 else value -= totalBorders;
             }
@@ -127,8 +129,8 @@ const generateGetElementSizeFn = function (pseudo, dim, dimCased, startDim, endD
                 value = 0;
 
             if (margins) {
-                let totalMargins = parseFloat(style[`margin-${startDim}`] || 0) +
-                    parseFloat(style[`margin-${endDim}`] || 0);
+                let totalMargins = parseFloat(style[`margin-${startDim}`] || '0') +
+                    parseFloat(style[`margin-${endDim}`] || '0');
                 value += totalMargins;
             }
 
@@ -137,9 +139,9 @@ const generateGetElementSizeFn = function (pseudo, dim, dimCased, startDim, endD
     };
 };
 
-const generateSetElementSizeFn = (dim, dimCased, startDim, endDim) => {
-    return (/**Element|ElementCSSInlineStyle*/el,
-            /**number*/value,
+const generateSetElementSizeFn = (dim: 'width' | 'height', dimCased: 'Width' | 'Height', startDim: string, endDim: string) => {
+    return (/**Element|ElementCSSInlineStyle*/el: any,
+            /**number*/value: number,
             paddings = false, borders = false, margins = false) => {
 
         if ((/**@type Window*/el) === window) {
@@ -150,7 +152,7 @@ const generateSetElementSizeFn = (dim, dimCased, startDim, endDim) => {
             return;
         }
 
-        const style = getComputedStyle(el);
+        const style = getComputedStyle(el) as CSSStyleDeclaration & Record<string, string>;
 
         let includesPaddingAndBorders = false;
 
@@ -166,8 +168,8 @@ const generateSetElementSizeFn = (dim, dimCased, startDim, endDim) => {
             value -= (parseFloat(style[`margin-${startDim}`]) || 0) + (parseFloat(style[`margin-${endDim}`]) || 0);
 
         if (paddings !== includesPaddingAndBorders) {
-            let totalPadding = parseFloat(style[`padding-${startDim}`] || 0) +
-                parseFloat(style[`padding-${endDim}`] || 0);
+            let totalPadding = parseFloat(style[`padding-${startDim}`] || '0') +
+                parseFloat(style[`padding-${endDim}`] || '0');
             if (paddings) value -= totalPadding;
             else value += totalPadding;
         }
@@ -195,7 +197,9 @@ const generateSetElementSizeFn = (dim, dimCased, startDim, endDim) => {
  * @param {boolean} [margins=false] - include margins
  * @returns {number}
  */
-const getElementWidth = generateGetElementSizeFn(false, 'width', 'Width', 'left', 'right');
+const getElementWidth = generateGetElementSizeFn(false, 'width', 'Width', 'left', 'right') as (
+    el: Element | Document | Window, paddings?: boolean, borders?: boolean, margins?: boolean
+) => number;
 
 /**
  * Gets the width of an element, with fractions
@@ -206,7 +210,9 @@ const getElementWidth = generateGetElementSizeFn(false, 'width', 'Width', 'left'
  * @param {boolean} [margins=false] - include margins
  * @returns {number}
  */
-const getElementHeight = generateGetElementSizeFn(false, 'height', 'Height', 'top', 'bottom');
+const getElementHeight = generateGetElementSizeFn(false, 'height', 'Height', 'top', 'bottom') as (
+    el: Element | Document | Window, paddings?: boolean, borders?: boolean, margins?: boolean
+) => number;
 
 /**
  * Gets the width of an element, with fractions
@@ -218,7 +224,9 @@ const getElementHeight = generateGetElementSizeFn(false, 'height', 'Height', 'to
  * @param {boolean} [margins=false] - include margins
  * @returns {number}
  */
-const getPseudoElementWidth = generateGetElementSizeFn(true, 'width', 'Width', 'left', 'right');
+const getPseudoElementWidth = generateGetElementSizeFn(true, 'width', 'Width', 'left', 'right') as (
+    el: Element, pseudo: string, paddings?: boolean, borders?: boolean, margins?: boolean
+) => number;
 
 /**
  * Gets the width of an element, with fractions
@@ -230,7 +238,9 @@ const getPseudoElementWidth = generateGetElementSizeFn(true, 'width', 'Width', '
  * @param {boolean} [margins=false] - include margins
  * @returns {number}
  */
-const getPseudoElementHeight = generateGetElementSizeFn(true, 'height', 'Height', 'top', 'bottom');
+const getPseudoElementHeight = generateGetElementSizeFn(true, 'height', 'Height', 'top', 'bottom') as (
+    el: Element, pseudo: string, paddings?: boolean, borders?: boolean, margins?: boolean
+) => number;
 
 /**
  * Sets the width of an element
@@ -241,7 +251,9 @@ const getPseudoElementHeight = generateGetElementSizeFn(true, 'height', 'Height'
  * @param {boolean} [borders=false] - include borders
  * @param {boolean} [margins=false] - include margins
  */
-const setElementWidth = generateSetElementSizeFn('width', 'Width', 'left', 'right');
+const setElementWidth = generateSetElementSizeFn('width', 'Width', 'left', 'right') as (
+    el: ElementCSSInlineStyle, value: number, paddings?: boolean, borders?: boolean, margins?: boolean
+) => void;
 
 /**
  * Sets the width of an element, with fractions
@@ -252,14 +264,16 @@ const setElementWidth = generateSetElementSizeFn('width', 'Width', 'left', 'righ
  * @param {boolean} [borders=false] - include borders
  * @param {boolean} [margins=false] - include margins
  */
-const setElementHeight = generateSetElementSizeFn('height', 'Height', 'top', 'bottom');
+const setElementHeight = generateSetElementSizeFn('height', 'Height', 'top', 'bottom') as (
+    el: ElementCSSInlineStyle, value: number, paddings?: boolean, borders?: boolean, margins?: boolean
+) => void;
 
 /**
  * Find offset of an element relative to the document, considering scroll offsets
  * @param {Element} el
  * @returns {{top: number, left: number}}
  */
-const getElementOffset = el => {
+const getElementOffset = (el: Element): { top: number; left: number } => {
     if (!el.getClientRects().length) {
         return { top: 0, left: 0 };
     }
@@ -285,7 +299,7 @@ const getElementOffset = el => {
  * @param {boolean?} [rtl] - if not specified and values like `'start'`/`'end'` are use, then `rtl` is auto detected
  * @returns {{left: number, top: number, right: number, bottom: number, xSpec: string|number, ySpec: string|number}}
  */
-const anchoredPosition = function (el, xSpec, ySpec, size, rtl) {
+const anchoredPosition = function (el: Element | undefined, xSpec: string | number, ySpec: string | number, size?: { width: number; height: number }, rtl?: boolean | null): { left: number; top: number; right: number; bottom: number; xSpec: string | number; ySpec: string | number } {
     if (!size) {
         size = {
             width: getElementWidth(el, true, true),
@@ -329,7 +343,7 @@ const anchoredPosition = function (el, xSpec, ySpec, size, rtl) {
         }
     }
     else {
-        x = parseFloat(xSpec) || 0;
+        x = parseFloat(String(xSpec)) || 0;
         xInverted = -x;
     }
 
@@ -351,7 +365,7 @@ const anchoredPosition = function (el, xSpec, ySpec, size, rtl) {
         yInverted = size.height * -percent;
     }
     else {
-        y = parseFloat(ySpec) || 0;
+        y = parseFloat(String(ySpec)) || 0;
         yInverted = -y;
     }
 
@@ -365,7 +379,7 @@ const anchoredPosition = function (el, xSpec, ySpec, size, rtl) {
     };
 };
 
-const timeToMs = (value) => {
+const timeToMs = (value?: string): number | undefined => {
     if (!value) {
         return;
     }
@@ -374,7 +388,7 @@ const timeToMs = (value) => {
     return parseFloat(value) * (isMs ? 1 : 1000);
 };
 
-const isTimeString = (value) => {
+const isTimeString = (value: string): boolean => {
     return /^-?(0?\.)?\d+m?s$/.test(value);
 };
 
@@ -383,7 +397,7 @@ const isTimeString = (value) => {
  * @param {string} transition
  * @return {{duration: number, delay: number, name: string, timingFunction: string?}}
  */
-const parseSingleTransition = (transition) => {
+const parseSingleTransition = (transition: string): { duration?: number; delay?: number; name: string; timingFunction?: string } => {
     let parts = transition.split(/\s+/),
         name = parts[0],
         duration = parts[1],
@@ -411,7 +425,7 @@ const parseSingleTransition = (transition) => {
  * @param {string} transition
  * @return {{duration: number, delay: number, name: string, timingFunction: string?}[]}
  */
-const parseTransition = (transition) => {
+const parseTransition = (transition: string): { duration?: number; delay?: number; name: string; timingFunction?: string }[] => {
     if (!transition) return [];
     return (transition.match(/([^,()]|\([^)]*\))+/g) ?? []).map(value => value.trim()).filter(value => value.length > 0).map(parseSingleTransition);
 };

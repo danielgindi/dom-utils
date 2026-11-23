@@ -2,9 +2,9 @@
 
 A collection of dom utilities. So you can work natively with the dom without dom frameworks.
 
-All functions have appropriate JSDocs.  
+All functions have JSDoc comments and generated TypeScript declarations.
 
-* `lib/Css.js`: A set of css helpers
+* `lib/Css.ts`: A set of css helpers
   * `getCssProps(el: Element, props: string[]): Object<string, string>`
   * `setCssProps(el: ElementCSSInlineStyle, props: Object<string, string>)`
   * `getElementWidth(el: Element, paddings: boolean = false, borders: boolean = false, margins: boolean = false): number`
@@ -16,14 +16,14 @@ All functions have appropriate JSDocs.
   * `getElementOffset(el: Element): {top: number, left: number}`
   * `anchoredPosition(el: Element, xSpec: 'left'|'center'|'right'|'start'|'end'|string|number, ySpec: 'top'|'center'|'bottom'|string|number, size: {width: number: height: number}, rtl?: boolean): {left: number, top: number, right: number, bottom: number, xSpec: string|number, ySpec: string|number}`
 
-* `lib/Dom.js`: A set of dom helpers
+* `lib/Dom.ts`: A set of dom helpers
   * `createElement(tag: tag, attrs: Object<string, string>, children: Node|Node[]): Element`
   * `setElementAttrs(el: Element, attrs: Object<string, string>)`
   * `closestUntil(el: Element, selector: string, until?: Node): Node|null`
   * `prev(el: Element, selector: string): Element|null`
   * `next(el: Element, selector: string): Element|null`
 
-* `lib/DomCompat.js`: A set of compatibility functions, for several functions which are not available on all browsers
+* `lib/DomCompat.ts`: A set of compatibility functions, for several functions which are not available on all browsers
   * `getRootNode(el: Node): Node|null`
   * `closest(el: Element, selector: string):Node|null`
   * `remove(el: Element)`
@@ -35,17 +35,17 @@ All functions have appropriate JSDocs.
   * `scopedSelectorAll(el: Element, selector: Element): NodeListOf<Element>`
   * `toggleClass(el: Element, className: string, toggle?: boolean): boolean`
 
-* `lib/DomEventsSink.js`: A class for registering/unregistering event listeners
+* `lib/DomEventsSink.ts`: A class for registering/unregistering event listeners
   * `add(el: EventTarget, eventName: string, handler: EventListenerOrEventListenerObject, optionsOrCapture?: boolean|AddEventListenerOptions): DomEventsSink`  
     event names support namespacing, where `'event.namespace'`.
   * `remove(el?: EventTarget, eventName?: string, handler?: EventListenerOrEventListenerObject, optionsOrCapture?: boolean|AddEventListenerOptions): DomEventsSink`  
     specify any argument as a filter for what to remove. specify '.namespace' event name in order to remove everything for a specific namespace.
 
-* `Touches.js`: Touch helpers
+* `Touches.ts`: Touch helpers
   * `bindTouchTap(el: Element, options: { distance: number = 9, handler: function(event: TouchEvent) }): { unbind: Function }`  
     This little function will manage touch events to detect a single tap.
 
-* `ScrollHelper.js`: scroll helpers
+* `ScrollHelper.ts`: scroll helpers
   * You can use `getScrollLeft`/`setScrollLeft` to normalize the behavior of `scrollLeft` across the quirks of different browsers.
   * You can use `getScrollHorz`/`setScrollHorz` to record and restore `scrollLeft` positions on RTL elements, or to switch between ltr/rtl modes without loosing scroll position.
   * `calculateNativeScrollLeftForLeft(el: Element, left: number, rtl?: boolean|undefined): number`  

@@ -1,4 +1,6 @@
 export default class DomEventsSink {
+    private _events: { el: EventTarget; name: string; namespace?: string; handler: EventListenerOrEventListenerObject; useCapture: boolean }[];
+
     constructor() {
         /**
          * @type {{el: EventTarget, name: string, handler: EventListenerOrEventListenerObject, useCapture: boolean}[]}
@@ -14,7 +16,7 @@ export default class DomEventsSink {
      * @param {boolean|AddEventListenerOptions} [optionsOrCapture=undefined]
      * @returns {DomEventsSink}
      */
-    add(el, eventName, handler, optionsOrCapture) {
+    add(el: EventTarget, eventName: string, handler: EventListenerOrEventListenerObject, optionsOrCapture?: boolean | AddEventListenerOptions): DomEventsSink {
         let parts = eventName.split('.');
         let name = parts[0];
         let namespace = parts[1];
@@ -32,7 +34,7 @@ export default class DomEventsSink {
      * @param {boolean|EventListenerOptions} [optionsOrCapture=undefined]
      * @returns {DomEventsSink}
      */
-    remove(el, eventName, handler, optionsOrCapture) {
+    remove(el?: EventTarget, eventName?: string, handler?: EventListenerOrEventListenerObject, optionsOrCapture?: boolean | EventListenerOptions): DomEventsSink {
         let parts = eventName ? eventName.split('.') : '';
         let name = parts[0];
         let namespace = parts[1];

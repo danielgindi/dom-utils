@@ -2,7 +2,7 @@
  * @param {Node} el
  * @returns {Node|null}
  */
-const getRootNode = function (el) {
+const getRootNode = function (el: Node): Node | null {
     if (!el) return null;
     if ('getRootNode' in el)
         return el.getRootNode();
@@ -18,19 +18,19 @@ const getRootNode = function (el) {
  * @param {string} selector
  * @returns {Node|null}
  */
-const closest = function (el, selector) {
+const closest = function (el: Element, selector: string): Element | null {
     if ('closest' in el)
         return el.closest(selector);
 
     const matches = Element.prototype.matches ||
-        Element.prototype.msMatchesSelector ||
-        Element.prototype.webkitMatchesSelector;
+        (Element.prototype as Element & { msMatchesSelector?: typeof Element.prototype.matches }).msMatchesSelector ||
+        (Element.prototype as Element & { webkitMatchesSelector?: typeof Element.prototype.matches }).webkitMatchesSelector;
 
     do {
         if (matches.call(el, selector))
             return el;
 
-        el = el.parentElement || el.parentNode;
+        el = (el.parentElement || el.parentNode) as Element;
     } while (el !== null && el.nodeType === 1);
 
     return null;
@@ -39,10 +39,10 @@ const closest = function (el, selector) {
 /**
  * @param {Element} el
  */
-const remove = function (el) {
+const remove = function (el: Element): void {
     if (!el) return;
 
-    if ('remove' in el)
+    if (typeof (el as { remove?: () => void }).remove === 'function')
         el.remove();
     else if (el.parentNode)
         el.parentNode.removeChild(el);
@@ -52,16 +52,16 @@ const remove = function (el) {
  * @param {ChildNode} before
  * @param {(Node|string)[]} nodes
  */
-const before = function (before, ...nodes) {
+const before = function (before: ChildNode, ...nodes: (Node | string)[]): void {
     if (nodes.length === 0) return;
 
-    if ('before' in before) {
+    if (typeof (before as { before?: (...nodes: (Node | string)[]) => void }).before === 'function') {
         before.before(...nodes);
     } else {
         if (nodes.length === 1) {
             let node = nodes[0];
             const isNode = node instanceof Node;
-            node = isNode ? node : document.createTextNode(String(node));
+            node = (isNode ? node : document.createTextNode(String(node))) as Node;
             before.parentNode.insertBefore(node, before);
         } else {
             let docFrag = document.createDocumentFragment();
@@ -80,16 +80,16 @@ const before = function (before, ...nodes) {
  * @param {ChildNode} after
  * @param {(Node|string)[]} nodes
  */
-const after = function (after, ...nodes) {
+const after = function (after: ChildNode, ...nodes: (Node | string)[]): void {
     if (nodes.length === 0) return;
 
-    if ('after' in after) {
+    if (typeof (after as { after?: (...nodes: (Node | string)[]) => void }).after === 'function') {
         after.after(...nodes);
     } else {
         if (nodes.length === 1) {
             let node = nodes[0];
             const isNode = node instanceof Node;
-            node = isNode ? node : document.createTextNode(String(node));
+            node = (isNode ? node : document.createTextNode(String(node))) as Node;
 
             if (after.nextSibling)
                 after.parentNode.insertBefore(node, after.nextSibling);
@@ -113,16 +113,16 @@ const after = function (after, ...nodes) {
  * @param {ParentNode|Element} parent
  * @param {(Node|string)[]} nodes
  */
-const prepend = function (parent, ...nodes) {
+const prepend = function (parent: ParentNode, ...nodes: (Node | string)[]): void {
     if (nodes.length === 0) return;
 
-    if ('prepend' in parent) {
+    if (typeof (parent as { prepend?: (...nodes: (Node | string)[]) => void }).prepend === 'function') {
         parent.prepend(...nodes);
     } else {
         if (nodes.length === 1) {
             let node = nodes[0];
             const isNode = node instanceof Node;
-            node = isNode ? node : document.createTextNode(String(node));
+            node = (isNode ? node : document.createTextNode(String(node))) as Node;
 
             if (parent.firstChild)
                 parent.insertBefore(node, parent.firstChild);
@@ -146,16 +146,16 @@ const prepend = function (parent, ...nodes) {
  * @param {ParentNode|Element} parent
  * @param {(Node|string)[]} nodes
  */
-const append = function (parent, ...nodes) {
+const append = function (parent: ParentNode, ...nodes: (Node | string)[]): void {
     if (nodes.length === 0) return;
 
-    if ('append' in parent) {
+    if (typeof (parent as { append?: (...nodes: (Node | string)[]) => void }).append === 'function') {
         parent.append(...nodes);
     } else {
         if (nodes.length === 1) {
             let node = nodes[0];
             const isNode = node instanceof Node;
-            node = isNode ? node : document.createTextNode(String(node));
+            node = (isNode ? node : document.createTextNode(String(node))) as Node;
 
             parent.appendChild(node);
         } else {
@@ -171,7 +171,7 @@ const append = function (parent, ...nodes) {
     }
 };
 
-let hasScopedQuerySelector = null;
+let hasScopedQuerySelector: boolean | null = null;
 
 const detectScopedSelectorFeature = () => {
     try {
@@ -187,7 +187,7 @@ const detectScopedSelectorFeature = () => {
  * @param {string} selector
  * @returns {Element|null}
  */
-const scopedSelector = function (el, selector) {
+const scopedSelector = function (el: Element, selector: string): Element | null {
     if (hasScopedQuerySelector === null) {
         detectScopedSelectorFeature();
     }
@@ -212,7 +212,7 @@ const scopedSelector = function (el, selector) {
  * @param {string} selector
  * @returns {NodeListOf<Element>}
  */
-const scopedSelectorAll = function (el, selector) {
+const scopedSelectorAll = function (el: Element, selector: string): NodeListOf<Element> {
     if (hasScopedQuerySelector === null) {
         detectScopedSelectorFeature();
     }
@@ -238,7 +238,7 @@ const scopedSelectorAll = function (el, selector) {
  * @param {boolean?} [toggle]
  * @returns {boolean} `true` if the class name is now present
  */
-const toggleClass = function (el, className, toggle) {
+const toggleClass = function (el: Element, className: string, toggle?: boolean): boolean {
     let classes = el.classList;
 
     if (toggle === undefined) {

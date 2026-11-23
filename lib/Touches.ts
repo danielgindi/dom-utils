@@ -5,11 +5,11 @@
  * @param {function(event: TouchEvent)} [options.handler]
  * @returns {{ unbind: Function }}
  */
-const bindTouchTap = function (el, options) {
-    let currentTouchId = null;
-    let downPos = null;
+const bindTouchTap = function (el: Element, options: { distance?: number | null; handler?: (event: TouchEvent) => void }): { unbind: () => void } {
+    let currentTouchId: number | null = null;
+    let downPos: { x: number; y: number } | null = null;
 
-    const startHandler = evt => {
+    const startHandler = (evt: TouchEvent) => {
         if (currentTouchId !== null) return;
 
         let touch = evt.changedTouches[0];
@@ -17,16 +17,16 @@ const bindTouchTap = function (el, options) {
 
         downPos = touch
             ? { x: touch.pageX, y: touch.pageY }
-            : { x: evt.pageX, y: evt.pageY };
+            : { x: (evt as TouchEvent & { pageX: number }).pageX, y: (evt as TouchEvent & { pageY: number }).pageY };
 
         el.addEventListener('touchend', endHandler);
         el.addEventListener('touchcancel', cancelHandler);
     };
 
-    const endHandler = evt => {
+    const endHandler = (evt: TouchEvent) => {
         if (currentTouchId === null) return;
 
-        let touch = null;
+        let touch: Touch | null = null;
 
         if (evt.changedTouches) {
             if (currentTouchId != null) {
@@ -45,7 +45,7 @@ const bindTouchTap = function (el, options) {
 
         let currentPos = touch
             ? { x: touch.pageX, y: touch.pageY }
-            : { x: evt.pageX, y: evt.pageY };
+            : { x: (evt as TouchEvent & { pageX: number }).pageX, y: (evt as TouchEvent & { pageY: number }).pageY };
         let startPos = downPos;
 
         currentTouchId = null;

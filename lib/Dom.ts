@@ -1,4 +1,4 @@
-import { setCssProps } from './Css.js';
+import { setCssProps } from './Css';
 
 /**
  * @param {string} tag
@@ -6,7 +6,7 @@ import { setCssProps } from './Css.js';
  * @param {Node|Node[]} [children]
  * @returns {Element}
  */
-const createElement = function (tag, attrs, children) {
+const createElement = function (tag: string, attrs?: Record<string, unknown>, children?: Node | Node[]): Element {
     let el = document.createElement(tag);
 
     if (attrs && typeof attrs === 'object')
@@ -29,7 +29,7 @@ const createElement = function (tag, attrs, children) {
  * @param {Element} el
  * @param {Object<string, string>} attrs
  */
-const setElementAttrs = function (el, attrs) {
+const setElementAttrs = function (el: Element, attrs: Record<string, unknown>): void {
     for (let [key, value] of Object.entries(attrs)) {
         if (value === null || value === undefined)
             continue;
@@ -37,9 +37,9 @@ const setElementAttrs = function (el, attrs) {
         if (key === 'innerHTML')
             el.innerHTML = String(value);
         else if (key === 'css' && 'style' in el)
-            setCssProps(el, value);
+            setCssProps(el as HTMLElement, value as Record<string, unknown>);
         else if (key in el && key !== 'style')
-            el[key] = value;
+            (el as unknown as Record<string, unknown>)[key] = value;
         else el.setAttribute(key, String(value));
     }
 };
@@ -50,13 +50,13 @@ const setElementAttrs = function (el, attrs) {
  * @param {Node} [until]
  * @returns {Node|null}
  */
-const closestUntil = function (el, selector, until) {
+const closestUntil = function (el: Element, selector: string, until?: Node): Element | null {
     if ('closest' in el && !until)
         return el.closest(selector);
 
     const matches = Element.prototype.matches ||
-        Element.prototype.msMatchesSelector ||
-        Element.prototype.webkitMatchesSelector;
+        (Element.prototype as Element & { msMatchesSelector?: typeof Element.prototype.matches }).msMatchesSelector ||
+        (Element.prototype as Element & { webkitMatchesSelector?: typeof Element.prototype.matches }).webkitMatchesSelector;
 
     do {
         if (matches.call(el, selector))
@@ -65,7 +65,7 @@ const closestUntil = function (el, selector, until) {
         if (until && el === until)
             return null;
 
-        el = el.parentElement || el.parentNode;
+        el = (el.parentElement || el.parentNode) as Element;
     } while (el !== null && el.nodeType === 1);
 
     return null;
@@ -76,18 +76,18 @@ const closestUntil = function (el, selector, until) {
  * @param {string} selector
  * @returns {Element|null}
  */
-const prev = function (el, selector) {
+const prev = function (el: Element, selector: string): Element | null {
     if (!el) return null;
 
     const matches = Element.prototype.matches ||
-        Element.prototype.msMatchesSelector ||
-        Element.prototype.webkitMatchesSelector;
+        (Element.prototype as Element & { msMatchesSelector?: typeof Element.prototype.matches }).msMatchesSelector ||
+        (Element.prototype as Element & { webkitMatchesSelector?: typeof Element.prototype.matches }).webkitMatchesSelector;
 
     do {
         if (matches.call(el, selector))
             return el;
 
-        el = el.previousElementSibling || el.previousSibling;
+        el = (el.previousElementSibling || el.previousSibling) as Element;
     } while (el !== null && el.nodeType === 1);
 
     return null;
@@ -98,24 +98,24 @@ const prev = function (el, selector) {
  * @param {string} selector
  * @returns {null|Element}
  */
-const next = function (el, selector) {
+const next = function (el: Element, selector: string): Element | null {
     if (!el) return null;
 
     const matches = Element.prototype.matches ||
-        Element.prototype.msMatchesSelector ||
-        Element.prototype.webkitMatchesSelector;
+        (Element.prototype as Element & { msMatchesSelector?: typeof Element.prototype.matches }).msMatchesSelector ||
+        (Element.prototype as Element & { webkitMatchesSelector?: typeof Element.prototype.matches }).webkitMatchesSelector;
 
     do {
         if (matches.call(el, selector))
             return el;
 
-        el = el.nextElementSibling || el.nextSibling;
+        el = (el.nextElementSibling || el.nextSibling) as Element;
     } while (el !== null && el.nodeType === 1);
 
     return null;
 };
 
-const unwrapChildren = function (el) {
+const unwrapChildren = function (el: Element): void {
     let parent = el.parentNode;
     while (el.firstChild)
         parent.insertBefore(el.firstChild, el);

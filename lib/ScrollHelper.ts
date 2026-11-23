@@ -1,4 +1,4 @@
-let rtlScrollType;
+let rtlScrollType: string | undefined;
 
 const detectRtlScrollType = () => {
     const definer = document.createElement('div');
@@ -41,7 +41,7 @@ const detectRtlScrollType = () => {
  * @param {boolean|undefined} [rtl] if unspecified, then it's automatically detected.
  * @returns {number}
  */
-function calculateNativeScrollLeftForLeft(el, left, rtl) {
+function calculateNativeScrollLeftForLeft(el: Element, left: number, rtl?: boolean): number {
     if (rtl === undefined) {
         rtl = getComputedStyle(el).direction === 'rtl';
     }
@@ -71,7 +71,7 @@ function calculateNativeScrollLeftForLeft(el, left, rtl) {
  * @param {boolean|undefined} [rtl] if unspecified, then it's automatically detected.
  * @returns {number}
  */
-function getScrollLeft(el, rtl) {
+function getScrollLeft(el: Element, rtl?: boolean): number {
     if (rtl === undefined) {
         rtl = getComputedStyle(el).direction === 'rtl';
     }
@@ -101,7 +101,7 @@ function getScrollLeft(el, rtl) {
  * @param {number} left
  * @param {boolean|undefined} [rtl] if unspecified, then it's automatically detected.
  */
-function setScrollLeft(el, left, rtl) {
+function setScrollLeft(el: Element, left: number, rtl?: boolean): void {
     el.scrollLeft = calculateNativeScrollLeftForLeft(el, left, rtl);
 }
 
@@ -111,7 +111,7 @@ function setScrollLeft(el, left, rtl) {
  * @param {boolean|undefined} [rtl] if unspecified, then it's automatically detected.
  * @returns {number}
  */
-function calculateNativeScrollLeftForHorz(el, value, rtl) {
+function calculateNativeScrollLeftForHorz(el: Element, value: number, rtl?: boolean): number {
     if (rtl === undefined) {
         rtl = getComputedStyle(el).direction === 'rtl';
     }
@@ -128,7 +128,7 @@ function calculateNativeScrollLeftForHorz(el, value, rtl) {
  * @param {boolean|undefined} [rtl] if unspecified, then it's automatically detected.
  * @returns {number}
  */
-function getScrollHorz(el, rtl) {
+function getScrollHorz(el: Element, rtl?: boolean): number {
     if (rtl === undefined) {
         rtl = getComputedStyle(el).direction === 'rtl';
     }
@@ -144,7 +144,7 @@ function getScrollHorz(el, rtl) {
  * @param {number} horz
  * @param {boolean|undefined} [rtl] if unspecified, then it's automatically detected.
  */
-function setScrollHorz(el, horz, rtl) {
+function setScrollHorz(el: Element, horz: number, rtl?: boolean): void {
     el.scrollLeft = calculateNativeScrollLeftForHorz(el, horz, rtl);
 }
 

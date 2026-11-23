@@ -1,15 +1,30 @@
 /* eslint-disable no-console */
 
-const FsExtra = require('fs-extra');
-const Path = require('path');
+import * as FsExtra from 'fs-extra';
+import * as Path from 'node:path';
+import { rollup, type OutputChunk, type Plugin } from 'rollup';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import { babel } from '@rollup/plugin-babel';
+import terser from '@rollup/plugin-terser';
+import MagicString from 'magic-string';
+
+type BuildTask = {
+    dest: string;
+    sourceMap: boolean;
+    outputFormat: 'esm' | 'umd' | 'cjs';
+    outputExports?: 'named';
+    outputName?: string;
+    babelTargets?: string;
+    minified: boolean;
+    ecmaVersion: 2022;
+};
 
 (async () => {
 
     await FsExtra.emptyDir('./dist');
 
-    const Rollup = require('rollup');
-
-    const rollupTasks = [{
+    const rollupTasks: BuildTask[] = [{
         dest: 'dist/lib.es6.js',
         sourceMap: true,
         outputFormat: 'esm',
@@ -59,19 +74,26 @@ const Path = require('path');
         ecmaVersion: 2022,
     }];
 
-    const inputFile = 'lib/index.js';
+    await FsExtra.ensureDir('dist/types');
+    for (const file of await FsExtra.readdir('.tsbuild')) {
+        if (file.endsWith('.d.ts')) {
+            await FsExtra.copyFile(`.tsbuild/${file}`, `dist/types/${file}`);
+        }
+    }
 
-    for (let task of rollupTasks) {
+    const inputFile = '.tsbuild/index.js';
+
+    for (const task of rollupTasks) {
         console.info('Generating ' + task.dest + '...');
 
-        let plugins = [
-            require('@rollup/plugin-node-resolve').nodeResolve({
+        const plugins: Plugin[] = [
+            nodeResolve({
                 mainFields: ['module', 'main'],
             }),
-            require('@rollup/plugin-commonjs')({}),
+            commonjs({}),
         ];
 
-        const pkg = require('../package.json');
+        const pkg = FsExtra.readJsonSync('package.json') as { name: string; version: string; repository: { url: string } };
         const banner = [
             `/*!`,
             ` * ${pkg.name} ${pkg.version}`,
@@ -80,7 +102,7 @@ const Path = require('path');
         ].join('\n');
 
         if (task.babelTargets) {
-            plugins.push(require('@rollup/plugin-babel').babel({
+            plugins.push(babel({
                 sourceMap: !!task.sourceMap,
                 presets: [
                     ['@babel/env', {
@@ -99,7 +121,7 @@ const Path = require('path');
         }
 
         if (task.minified) {
-            plugins.push(require('@rollup/plugin-terser')({
+            plugins.push(terser({
                 toplevel: true,
                 compress: {
                     ecma: task.ecmaVersion,
@@ -112,9 +134,9 @@ const Path = require('path');
         plugins.push({
             name: 'banner',
 
-            renderChunk(code, chunk, _outputOptions = {}) {
+            renderChunk(code) {
 
-                const magicString = new (require('magic-string'))(code);
+                const magicString = new MagicString(code);
                 magicString.prepend(banner);
 
                 return {
@@ -126,7 +148,7 @@ const Path = require('path');
             },
         });
 
-        const bundle = await Rollup.rollup({
+        const bundle = await rollup({
             preserveSymlinks: true,
             treeshake: false,
             onwarn(warning, warn) {
@@ -138,7 +160,7 @@ const Path = require('path');
             external: [],
         });
 
-        let generated = await bundle.generate({
+        const generated = await bundle.generate({
             name: task.outputName,
             sourcemap: task.sourceMap,
             format: task.outputFormat,
@@ -147,11 +169,12 @@ const Path = require('path');
             },
         });
 
-        let code = generated.output[0].code;
+        const output = generated.output[0] as OutputChunk;
+        let code = output.code;
 
-        if (task.sourceMap === true && generated.output[0].map) {
-            let sourceMapOutPath = task.dest + '.map';
-            FsExtra.writeFileSync(sourceMapOutPath, generated.output[0].map.toString());
+        if (task.sourceMap === true && output.map) {
+            const sourceMapOutPath = task.dest + '.map';
+            FsExtra.writeFileSync(sourceMapOutPath, output.map.toString());
             code += '\n//# sourceMappingURL=' + Path.basename(sourceMapOutPath);
         }
 

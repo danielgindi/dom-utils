@@ -1,5 +1,6 @@
 .idea
 scripts/
+.tsbuild/
 tests/
 .eslintignore
 .eslintrc.js
