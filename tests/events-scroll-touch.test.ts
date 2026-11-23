@@ -7,7 +7,7 @@ beforeEach(resetDom);
 
 test('event sink removes listeners by namespace and capture setting', () => {
     const target = document.createElement('button');
-    const sink = new DomEventsSink.default();
+    const sink = new DomEventsSink();
     const calls: string[] = [];
     const edit = () => calls.push('edit');
     const view = () => calls.push('view');
@@ -28,7 +28,7 @@ test('event sink removes listeners by namespace and capture setting', () => {
 
 test('event sink removes every listener when no filter is supplied', () => {
     const target = document.createElement('button');
-    const sink = new DomEventsSink.default();
+    const sink = new DomEventsSink();
     let calls = 0;
     sink.add(target, 'click.first', () => { calls += 1; });
     sink.add(target, 'click.second', () => { calls += 1; });

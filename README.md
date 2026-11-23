@@ -4,6 +4,18 @@ A collection of dom utilities. So you can work natively with the dom without dom
 
 All functions have JSDoc comments and generated TypeScript declarations.
 
+Import the helper groups and the event sink class from the package:
+
+```ts
+import { Dom, DomEventsSink } from '@danielgindi/dom-utils';
+
+const element = Dom.createElement('button');
+const sink = new DomEventsSink();
+sink.add(element, 'click', () => {});
+```
+
+The helper groups preserve the import style from before 2.0.0. For the event sink class, replace `new DomEventsSink.default()` with `new DomEventsSink()` when upgrading.
+
 * `lib/Css.ts`: A set of css helpers
   * `getCssProps(el: Element, props: string[]): Object<string, string>`
   * `setCssProps(el: ElementCSSInlineStyle, props: Object<string, string>)`
