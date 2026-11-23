@@ -48,12 +48,26 @@ test('the packed package supports the original lib file imports', async context 
                 "import { createRequire } from 'node:module';",
                 "import * as index from '@danielgindi/dom-utils/lib/index.js';",
                 "import DomEventsSink from '@danielgindi/dom-utils/lib/DomEventsSink.js';",
+                "import * as alias from '@danielgindi/dom-utils/lib/index';",
+                "import * as folder from '@danielgindi/dom-utils/lib';",
+                "import SinkAlias from '@danielgindi/dom-utils/lib/DomEventsSink';",
+                "import * as rootEsm from '@danielgindi/dom-utils';",
+                'assert.equal(alias, index);',
+                'assert.equal(folder, index);',
+                'assert.equal(SinkAlias, DomEventsSink);',
+                'assert.equal(rootEsm.DomEventsSink, DomEventsSink);',
                 "const root = createRequire(import.meta.url)('@danielgindi/dom-utils');",
+                "const require = createRequire(import.meta.url);",
+                "assert.ok(require('@danielgindi/dom-utils/package.json').name);",
+                "assert.ok(require('@danielgindi/dom-utils/dist/lib.cjs.min.js').Dom);",
+                "assert.ok(require('@danielgindi/dom-utils/lib/package.json').type);",
                 'assert.deepEqual(Object.keys(root).sort(), Object.keys(index).sort());',
                 'assert.equal(index.DomEventsSink, DomEventsSink);',
                 'assert.ok(new root.DomEventsSink());',
                 "for (const name of ['Css', 'Dom', 'DomCompat', 'ScrollHelper', 'Touches']) {",
                 "    const direct = await import('@danielgindi/dom-utils/lib/' + name + '.js');",
+                "    const extensionless = await import('@danielgindi/dom-utils/lib/' + name);",
+                '    assert.equal(extensionless, direct);',
                 '    assert.deepEqual(Object.keys(direct).sort(), Object.keys(root[name]).sort());',
                 '    for (const [key, helper] of Object.entries(direct))',
                 '        assert.equal(index[name][key], helper);',
@@ -74,6 +88,8 @@ test('the packed package supports the original lib file imports', async context 
             "import * as Touches from '@danielgindi/dom-utils/lib/Touches.js';",
             "import * as index from '@danielgindi/dom-utils/lib/index.js';",
             "import * as root from '@danielgindi/dom-utils';",
+            "import * as folder from '@danielgindi/dom-utils/lib';",
+            'void folder;',
             'export { Css, Dom, DomCompat, DomEventsSink, ScrollHelper, Touches, index, root };',
         ].join('\n');
 
@@ -82,11 +98,21 @@ test('the packed package supports the original lib file imports', async context 
             const require = createRequire(Path.join(process.cwd(), 'package.json'));
             const tsc = require.resolve('typescript/lib/tsc.js');
             const options = ['--noEmit', '--strict', '--skipLibCheck', 'false', '--target', 'ES2022'];
-            Fs.writeFileSync(fixture, imports + '\nconst sink: DomEventsSink = new index.DomEventsSink();\nvoid sink;');
+            const typeAssertions = '\nconst sink: DomEventsSink = new index.DomEventsSink();\nconst rootSink: DomEventsSink = new root.DomEventsSink();\nvoid sink;\nvoid rootSink;';
+            Fs.writeFileSync(fixture, imports + typeAssertions);
             run(tsc, [...options, '--module', 'NodeNext', '--moduleResolution', 'NodeNext', fixture]);
 
-            Fs.writeFileSync(fixture, imports.replaceAll('.js\'', '\'') + '\nnew DomEventsSink();');
+            Fs.writeFileSync(fixture, imports.replaceAll('.js\'', '\'') + typeAssertions);
+            run(tsc, [...options, '--module', 'NodeNext', '--moduleResolution', 'NodeNext', fixture]);
             run(tsc, [...options, '--module', 'ESNext', '--moduleResolution', 'Bundler', fixture]);
+
+            const commonjsFixture = Path.join(directory, 'consumer.cts');
+            Fs.writeFileSync(commonjsFixture, [
+                "import root = require('@danielgindi/dom-utils');",
+                'const sink: root.DomEventsSink = new root.DomEventsSink();',
+                'void sink;',
+            ].join('\n'));
+            run(tsc, [...options, '--module', 'NodeNext', '--moduleResolution', 'NodeNext', commonjsFixture]);
         });
 
         await context.test('bundlers resolve the original extensionless lib paths', async () => {

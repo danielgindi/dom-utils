@@ -6,6 +6,28 @@
   "module": "lib/index.js",
   "browser": "dist/lib.umd.min.js",
   "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/lib.cjs.min.js"
+      },
+      "default": "./lib/index.js"
+    },
+    "./lib": "./lib/index.js",
+    "./lib/index": "./lib/index.js",
+    "./lib/Css": "./lib/Css.js",
+    "./lib/Dom": "./lib/Dom.js",
+    "./lib/DomCompat": "./lib/DomCompat.js",
+    "./lib/DomEventsSink": "./lib/DomEventsSink.js",
+    "./lib/ScrollHelper": "./lib/ScrollHelper.js",
+    "./lib/Touches": "./lib/Touches.js",
+    "./*": "./*"
+  },
   "author": "Daniel Cohen Gindi <danielgindi@gmail.com>",
   "repository": {
     "type": "git",

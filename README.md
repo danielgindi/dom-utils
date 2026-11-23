@@ -23,7 +23,17 @@ import { createElement } from '@danielgindi/dom-utils/lib/Dom.js';
 import DomEventsSink from '@danielgindi/dom-utils/lib/DomEventsSink.js';
 ```
 
-The build generates these JavaScript files from the TypeScript source. Run `npm run build` before using file imports from a local checkout. Bundlers can also resolve the existing extensionless paths, such as `@danielgindi/dom-utils/lib/Dom`.
+Extensionless imports work in native Node ESM, TypeScript, and bundlers too:
+
+```ts
+import { createElement } from '@danielgindi/dom-utils/lib/Dom';
+import DomEventsSink from '@danielgindi/dom-utils/lib/DomEventsSink';
+import { Dom } from '@danielgindi/dom-utils/lib';
+```
+
+Both spellings resolve to the same modules. The package root keeps grouped exports, with ESM for `import` and CommonJS for `require`. Existing `dist/*` and explicit file paths remain accessible.
+
+The build generates these JavaScript files from the TypeScript source. Run `npm run build` before using file imports from a local checkout.
 
 * `lib/Css.ts`: A set of css helpers
   * `getCssProps(el: Element, props: string[]): Object<string, string>`
