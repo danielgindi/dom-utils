@@ -76,6 +76,12 @@ All functions have JSDoc comments and generated TypeScript declarations.
 
 ---
 
+## Tests
+
+Run `npm test` after `npm install`. The suite covers DOM manipulation, CSS measurements, event listeners, touch gestures, and LTR/RTL scrolling with jsdom.
+
+---
+
 ## Me
 * Hi! I am Daniel Cohen Gindi. Or in short- Daniel.
 * danielgindi@gmail.com is my email address.

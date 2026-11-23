@@ -9,7 +9,7 @@ export default tseslint.config(
     eslint.configs.recommended,
     ...tseslint.configs.recommended.map(config => ({
         ...config,
-        files: ['lib/**/*.ts', 'scripts/**/*.ts'],
+        files: ['lib/**/*.ts', 'scripts/**/*.ts', 'tests/**/*.ts'],
     })),
     {
         files: ['lib/**/*.ts'],
@@ -39,6 +39,15 @@ export default tseslint.config(
         },
         rules: {
             '@typescript-eslint/no-explicit-any': 'warn',
+        },
+    },
+    {
+        files: ['tests/**/*.ts'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+                ...globals.browser,
+            },
         },
     },
     {
